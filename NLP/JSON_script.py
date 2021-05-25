@@ -22,7 +22,6 @@ def clear_text(text_raw, dict_twitter_names):
    try:
      # disables error messages momentarily
      with contextlib.redirect_stderr(None):
-       #print("Language Detection Worked")
        # detects the languages
        langs = detect_language(text)
        # list comprehension
@@ -33,17 +32,7 @@ def clear_text(text_raw, dict_twitter_names):
    except UnknownLanguageException:
      company = []
  return company
-# Modify keywords, top-level directory, and output file name
-##################################################
-#with open('C:/Users/Flora/PycharmProjects/IR/data/keywords.csv', newline='') as f:
-#  reader = csv2.reader(f)
-#  tmp = list(reader)
-#keywords = []
-#for sublist in tmp:
-#  for item in sublist:
-#    keywords.append(item)
-# Keep keywords lower case - Will match all cases
-#keywords = ['ghg emissions', 'greenhouse gas', 'emissions']
+
 # Top level directory - Use forward slashes only (/) - Do not place / at end
 directory = "C:/Users/ge57sah/Desktop/12"
 # Output .csv table name - Will be placed in same directory as Jupyter script
@@ -78,11 +67,8 @@ def process_json(comp_dict,directory,outfile):
            try:
              tweet = json.loads(line)
            except json.decoder.JSONDecodeError as e:
-             #global errors
-             #errors += 1
              pass
            # Save standard tweet info
-           # print(tweet)
            try:
              poster = tweet['user']['screen_name']
              tweet_date = tweet['created_at']
@@ -96,7 +82,6 @@ def process_json(comp_dict,directory,outfile):
                  tweet_text1 = tweet['text'].split(": ", 1)[0]
                  tweet_text2 = tweet['retweeted_status']['extended_tweet']['full_text']
                  tweet_text = tweet_text1 + ": " + tweet_text2
-                 #print("truncated RT")
                else:
                  tweet_text = tweet['text']
              elif bytearray('quoted_status', 'utf-8') in line.lower():
@@ -104,43 +89,17 @@ def process_json(comp_dict,directory,outfile):
                  tweet_text1 = tweet['text']
                  tweet_text2 = tweet['quoted_status']['extended_tweet']['full_text']
                  tweet_text = tweet_text1 + " QUOTED: " + tweet_text2
-                 #print('truncated QUOTE')
                else:
                  tweet_text1 = tweet['text']
                  tweet_text2 = tweet['quoted_status']['text']
                  tweet_text = tweet_text1 + " QUOTED: " + tweet_text2
              else:
                tweet_text = tweet['text']
-             # Test for retweet status
-             # if bytearray('retweeted_status', 'utf-8') in line.lower():
-             #  retweet='True'
-             # else:
            except:
              pass
            companies = clear_text(tweet_text, comp_dict)
            if companies:
              try:
-               # Test for reply relationship
-               #if not tweet['in_reply_to_screen_name'] is None:
-               #  writer.writerow(
-               #    [poster, tweet['in_reply_to_screen_name'], 'reply', tweet_date, tweet_id,
-               #     tweet_text,
-               #     hashes, retweet, kw])
-               #  reply_status = 1
-                #  count_replies += 1
-               # Test for mention relationships
-               #mentions = list()
-               #for mention in tweet['entities']['user_mentions']:
-               #  recipient = mention['screen_name']
-                 # Ensure the mention is not already a reply
-               #  if recipient != tweet['in_reply_to_screen_name']:
-                #    writer.writerow(
-                #      [poster, recipient, 'mentions', tweet_date, tweet_id, tweet_text, hashes,
-                #      retweet, kw])
-                #    reply_status = 1
-                #   count_mentions += 1
-               # Write relationship as tweet if no reply or mentions
-               #if reply_status == 0:
                for company in companies:
                  writer.writerow(
                    [poster, poster, 'tweet', tweet_date, tweet_id, tweet_text, retweet,
@@ -152,10 +111,6 @@ def process_json(comp_dict,directory,outfile):
          else:
            pass
 if __name__ == '__main__':
- #comp_dict = pd.read_csv("P:/IR_Twitter Data/Eval_comp/sp500_twitter_names_eval.csv", index_col=0, squeeze=True).to_dict()
- #comp = pd.read_csv("P:/IR_Twitter Data/Eval_comp/sp500_twitter_names.csv", skiprows = 1, header = None)
- #comp = comp.set_index(0)
- #comp_dict = comp.to_dict()
  comp_dict = pd.read_csv("C:/Users/ge57sah/PycharmProjects/pythonProject/sp500_twitter_names.csv", index_col=0, squeeze=True).to_dict()
  process_json(comp_dict,directory,outfile)
  print ('-'*10)
